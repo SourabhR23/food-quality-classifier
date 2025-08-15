@@ -45,6 +45,20 @@ def classify_food():
         # Get food type from form
         food_type = request.form.get('food_type', 'tomato')
         
+        # Check if models are loaded
+        if not classifier.models:
+            return jsonify({
+                'error': 'Models not loaded. Please try again later or contact support.',
+                'models_loaded': 0
+            }), 503
+        
+        # Check if requested model exists
+        if food_type not in classifier.models:
+            return jsonify({
+                'error': f'Model for {food_type} not available',
+                'available_models': list(classifier.models.keys())
+            }), 400
+        
         # Save uploaded file
         filename = save_uploaded_file(file, app.config['UPLOAD_FOLDER'])
         file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
@@ -60,7 +74,11 @@ def classify_food():
         return jsonify(result)
     
     except Exception as e:
-        return jsonify({'error': str(e)}), 500
+        return jsonify({
+            'error': 'Classification failed',
+            'details': str(e),
+            'models_loaded': len(classifier.models) if hasattr(classifier, 'models') else 0
+        }), 500
 
 @app.route('/models')
 def models_info():
@@ -85,7 +103,10 @@ def health_check():
     return jsonify({
         'status': 'healthy', 
         'timestamp': datetime.now().isoformat(),
-        'models_loaded': len(classifier.models)
+        'models_loaded': len(classifier.models),
+        'available_models': list(classifier.models.keys()),
+        'python_version': '3.13.4',
+        'tensorflow_version': '2.20.0'
     })
 
 if __name__ == '__main__':
@@ -98,7 +119,7 @@ if __name__ == '__main__':
     print("   - GET  /performance - Performance metrics")
     print("   - GET  /health - Health check")
     
-    # Get part from environment variable 
+    # Get port from environment variable (for deployment)
     port = int(os.environ.get('PORT', 5000))
     
-    app.run(debug=False, host='0.0.0.0', port=5000)
+    app.run(debug=False, host='0.0.0.0', port=port)

@@ -58,6 +58,7 @@
         
         .quality-good { background-color: #d4edda; color: #155724; }
         .quality-average { background-color: #fff3cd; color: #856404; }
+        .quality-poor { background-color: #f8d7da; color: #721c24; }
         .quality-bad { background-color: #f8d7da; color: #721c24; }
         
         .result-card {
@@ -320,39 +321,64 @@
             
             // Display quality badge
             const qualityBadge = document.getElementById('qualityBadge');
-            qualityBadge.textContent = data.top_prediction.toUpperCase();
-            qualityBadge.className = `quality-badge quality-${data.top_prediction}`;
+            qualityBadge.textContent = data.quality.toUpperCase();
+            qualityBadge.className = `quality-badge quality-${data.quality.toLowerCase()}`;
             
             // Display confidence
-            document.getElementById('confidenceValue').textContent = data.confidence.toFixed(1) + '%';
+            document.getElementById('confidenceValue').textContent = (data.confidence * 100).toFixed(1) + '%';
             document.getElementById('foodTypeValue').textContent = data.food_type.charAt(0).toUpperCase() + data.food_type.slice(1);
             
             // Display probability bars
             const probabilityBars = document.getElementById('probabilityBars');
             probabilityBars.innerHTML = '';
             
-            Object.entries(data.predictions).forEach(([quality, probability]) => {
+            // Display all class probabilities if available
+            if (data.probabilities) {
+                Object.entries(data.probabilities).forEach(([quality, probability]) => {
+                    const barContainer = document.createElement('div');
+                    barContainer.className = 'mb-2';
+                    
+                    const label = document.createElement('div');
+                    label.className = 'd-flex justify-content-between';
+                    label.innerHTML = `
+                        <span>${quality.charAt(0).toUpperCase() + quality.slice(1)}</span>
+                        <span>${(probability * 100).toFixed(1)}%</span>
+                    `;
+                    
+                    const progressBar = document.createElement('div');
+                    progressBar.className = 'progress progress-bar-custom';
+                    progressBar.innerHTML = `
+                        <div class="progress-bar bg-${getQualityColor(quality)}" 
+                             style="width: ${probability * 100}%"></div>
+                    `;
+                    
+                    barContainer.appendChild(label);
+                    barContainer.appendChild(progressBar);
+                    probabilityBars.appendChild(barContainer);
+                });
+            } else {
+                // Fallback: show single prediction
                 const barContainer = document.createElement('div');
                 barContainer.className = 'mb-2';
                 
                 const label = document.createElement('div');
                 label.className = 'd-flex justify-content-between';
                 label.innerHTML = `
-                    <span>${quality.charAt(0).toUpperCase() + quality.slice(1)}</span>
-                    <span>${probability.toFixed(1)}%</span>
+                    <span>${data.quality}</span>
+                    <span>${(data.confidence * 100).toFixed(1)}%</span>
                 `;
                 
                 const progressBar = document.createElement('div');
                 progressBar.className = 'progress progress-bar-custom';
                 progressBar.innerHTML = `
-                    <div class="progress-bar bg-${getQualityColor(quality)}" 
-                         style="width: ${probability}%"></div>
+                    <div class="progress-bar bg-${getQualityColor(data.quality.toLowerCase())}" 
+                         style="width: ${data.confidence * 100}%"></div>
                 `;
                 
                 barContainer.appendChild(label);
                 barContainer.appendChild(progressBar);
                 probabilityBars.appendChild(barContainer);
-            });
+            }
             
             document.getElementById('resultsSection').style.display = 'block';
         }
@@ -361,7 +387,8 @@
             const colors = {
                 'good': 'success',
                 'average': 'warning',
-                'bad': 'danger'
+                'poor': 'danger',
+                'bad': 'danger'  // fallback
             };
             return colors[quality] || 'secondary';
         }
