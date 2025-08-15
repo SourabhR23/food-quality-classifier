@@ -55,7 +55,7 @@ Final/
 
 1. **Clone or download the project**
    ```bash
-   cd Final
+   cd Food_Quality_Classifier
    ```
 
 2. **Create a virtual environment (recommended)**
