@@ -7,7 +7,14 @@ from tensorflow import keras
 class FoodQualityClassifier:
     def __init__(self):
         self.models = {}
-        self.load_all_models()
+        self.model_paths = {
+            'tomato': 'models/tomato',
+            'mango': 'models/mango', 
+            'potato': 'models/potato',
+            'apple': 'models/apple'
+        }
+        # Use lazy loading to reduce memory usage
+        print("🚀 Food Quality Classifier initialized with lazy loading")
     
     def load_all_models(self):
         """Load all food quality models with fallback loading strategies"""
@@ -87,17 +94,34 @@ class FoodQualityClassifier:
         except Exception as e:
             raise Exception(f"Image preprocessing failed: {e}")
     
+    def _load_model_if_needed(self, food_type):
+        """Load model on demand to save memory"""
+        if food_type not in self.models:
+            if food_type in self.model_paths:
+                model_path = self.model_paths[food_type]
+                if os.path.exists(model_path):
+                    print(f"📥 Loading {food_type} model on demand...")
+                    model = self._load_model_with_fallback(model_path, food_type)
+                    if model is not None:
+                        self.models[food_type] = model
+                        print(f"✅ Loaded {food_type} model successfully")
+                        return model
+                    else:
+                        raise Exception(f"Failed to load {food_type} model with all strategies")
+                else:
+                    raise Exception(f"Model path not found: {model_path}")
+            else:
+                raise Exception(f"Model for {food_type} not configured")
+        return self.models[food_type]
+
     def classify_image(self, image_path, food_type):
         """Classify food quality using the specified model"""
         try:
-            if food_type not in self.models:
-                raise Exception(f"Model for {food_type} not available")
+            # Load model on demand
+            model = self._load_model_if_needed(food_type)
             
             # Preprocess image
             processed_image = self.preprocess_image(image_path)
-            
-            # Get model
-            model = self.models[food_type]
             
             # Try different prediction strategies based on model type
             prediction_values = self._predict_with_model(model, processed_image, food_type)
@@ -184,14 +208,21 @@ class FoodQualityClassifier:
         raise Exception(f"All prediction strategies failed for {food_type}")
     
     def get_models_info(self):
-        """Get information about loaded models"""
+        """Get information about available and loaded models"""
         models_info = {}
-        for food_type, model in self.models.items():
-            models_info[food_type] = {
-                'status': 'loaded',
-                'type': 'SavedModel',
-                'path': f'models/{food_type}'
-            }
+        for food_type in self.model_paths.keys():
+            if food_type in self.models:
+                models_info[food_type] = {
+                    'status': 'loaded',
+                    'type': 'Keras/SavedModel',
+                    'path': self.model_paths[food_type]
+                }
+            else:
+                models_info[food_type] = {
+                    'status': 'available_lazy',
+                    'type': 'Keras/SavedModel', 
+                    'path': self.model_paths[food_type]
+                }
         return models_info
     
     def get_model_status(self):

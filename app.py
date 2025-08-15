@@ -45,18 +45,11 @@ def classify_food():
         # Get food type from form
         food_type = request.form.get('food_type', 'tomato')
         
-        # Check if models are loaded
-        if not classifier.models:
-            return jsonify({
-                'error': 'Models not loaded. Please try again later or contact support.',
-                'models_loaded': 0
-            }), 503
-        
-        # Check if requested model exists
-        if food_type not in classifier.models:
+        # Check if requested model is available (either loaded or can be loaded)
+        if food_type not in classifier.model_paths:
             return jsonify({
                 'error': f'Model for {food_type} not available',
-                'available_models': list(classifier.models.keys())
+                'available_models': list(classifier.model_paths.keys())
             }), 400
         
         # Save uploaded file
@@ -77,7 +70,8 @@ def classify_food():
         return jsonify({
             'error': 'Classification failed',
             'details': str(e),
-            'models_loaded': len(classifier.models) if hasattr(classifier, 'models') else 0
+            'models_loaded': len(classifier.models) if hasattr(classifier, 'models') else 0,
+            'available_models': len(classifier.model_paths) if hasattr(classifier, 'model_paths') else 0
         }), 500
 
 @app.route('/models')
@@ -104,9 +98,10 @@ def health_check():
         'status': 'healthy', 
         'timestamp': datetime.now().isoformat(),
         'models_loaded': len(classifier.models),
-        'available_models': list(classifier.models.keys()),
+        'available_models': list(classifier.model_paths.keys()),
         'python_version': '3.13.4',
-        'tensorflow_version': '2.20.0'
+        'tensorflow_version': '2.20.0',
+        'memory_optimization': 'lazy_loading_enabled'
     })
 
 if __name__ == '__main__':
