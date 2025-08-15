@@ -4,19 +4,19 @@ Flask==2.3.3
 Werkzeug==2.3.7
 
 # Machine Learning & Computer Vision
-tensorflow-cpu==2.14.0
-Pillow==10.0.0
-numpy==1.23.5
+tensorflow
+Pillow
+numpy
 
 # Image processing
-opencv-python==4.8.0.76
+opencv-python
 
 # Utilities
-python-dateutil==2.8.2
+python-dateutil
 
 # Development & Testing (optional)
-pytest==7.4.0
-pytest-flask==1.2.0
+pytest
+pytest-flask
 
 # Production (required for deployment)
-gunicorn==21.2.0
+gunicorn
