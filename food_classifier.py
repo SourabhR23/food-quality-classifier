@@ -110,17 +110,28 @@ class FoodQualityClassifier:
                 model_path = self.model_paths[food_type]
                 if os.path.exists(model_path):
                     print(f"📥 Loading {food_type} model on demand...")
-                    model = self._load_model_with_fallback(model_path, food_type)
-                    if model is not None:
-                        self.models[food_type] = model
-                        print(f"✅ Loaded {food_type} model successfully")
-                        return model
-                    else:
-                        raise Exception(f"Failed to load {food_type} model with all strategies")
+                    try:
+                        model = self._load_model_with_fallback(model_path, food_type)
+                        if model is not None:
+                            self.models[food_type] = model
+                            print(f"✅ Loaded {food_type} model successfully")
+                            return model
+                        else:
+                            error_msg = f"Failed to load {food_type} model with all loading strategies"
+                            print(f"❌ {error_msg}")
+                            raise Exception(error_msg)
+                    except Exception as e:
+                        error_msg = f"Error loading {food_type} model: {str(e)}"
+                        print(f"❌ {error_msg}")
+                        raise Exception(error_msg)
                 else:
-                    raise Exception(f"Model path not found: {model_path}")
+                    error_msg = f"Model directory not found: {model_path}"
+                    print(f"❌ {error_msg}")
+                    raise Exception(error_msg)
             else:
-                raise Exception(f"Model for {food_type} not configured")
+                error_msg = f"Model configuration for {food_type} not found"
+                print(f"❌ {error_msg}")
+                raise Exception(error_msg)
         return self.models[food_type]
 
     def classify_image(self, image_path, food_type):

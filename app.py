@@ -32,15 +32,15 @@ def classify_food():
     try:
         # Check if file was uploaded
         if 'image' not in request.files:
-            return jsonify({'error': 'No image uploaded'}), 400
+            return jsonify({'error': 'No image uploaded', 'status': 'failed'}), 400
         
         file = request.files['image']
         if file.filename == '':
-            return jsonify({'error': 'No file selected'}), 400
+            return jsonify({'error': 'No file selected', 'status': 'failed'}), 400
         
         # Check file type
         if not allowed_file(file.filename):
-            return jsonify({'error': 'Invalid file type. Please upload JPG, PNG, or JPEG'}), 400
+            return jsonify({'error': 'Invalid file type. Please upload JPG, PNG, or JPEG', 'status': 'failed'}), 400
         
         # Get food type from form
         food_type = request.form.get('food_type', 'tomato')
@@ -49,29 +49,50 @@ def classify_food():
         if food_type not in classifier.model_paths:
             return jsonify({
                 'error': f'Model for {food_type} not available',
-                'available_models': list(classifier.model_paths.keys())
+                'available_models': list(classifier.model_paths.keys()),
+                'status': 'failed'
             }), 400
         
         # Save uploaded file
-        filename = save_uploaded_file(file, app.config['UPLOAD_FOLDER'])
-        file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+        try:
+            filename = save_uploaded_file(file, app.config['UPLOAD_FOLDER'])
+            file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+        except Exception as file_error:
+            return jsonify({
+                'error': 'Failed to save uploaded file',
+                'details': str(file_error),
+                'status': 'failed'
+            }), 500
         
-        # Classify the image
-        result = classifier.classify_image(file_path, food_type)
-        
-        # Add metadata
-        result['timestamp'] = datetime.now().isoformat()
-        result['filename'] = filename
-        result['food_type'] = food_type
-        
-        return jsonify(result)
+        # Classify the image with timeout protection
+        try:
+            result = classifier.classify_image(file_path, food_type)
+            
+            # Add metadata
+            result['timestamp'] = datetime.now().isoformat()
+            result['filename'] = filename
+            result['food_type'] = food_type
+            result['status'] = 'success'
+            
+            return jsonify(result), 200
+            
+        except Exception as classification_error:
+            return jsonify({
+                'error': 'Model classification failed',
+                'details': str(classification_error),
+                'food_type': food_type,
+                'models_loaded': len(classifier.models) if hasattr(classifier, 'models') else 0,
+                'status': 'failed'
+            }), 500
     
     except Exception as e:
+        # Catch-all error handler
         return jsonify({
-            'error': 'Classification failed',
+            'error': 'Unexpected server error',
             'details': str(e),
             'models_loaded': len(classifier.models) if hasattr(classifier, 'models') else 0,
-            'available_models': len(classifier.model_paths) if hasattr(classifier, 'model_paths') else 0
+            'available_models': len(classifier.model_paths) if hasattr(classifier, 'model_paths') else 0,
+            'status': 'failed'
         }), 500
 
 @app.route('/models')
@@ -102,6 +123,19 @@ def health_check():
         'python_version': '3.13.4',
         'tensorflow_version': '2.20.0',
         'memory_optimization': 'lazy_loading_enabled'
+    })
+
+@app.route('/test')
+def test_endpoint():
+    """Simple test endpoint to verify JSON responses"""
+    return jsonify({
+        'status': 'ok',
+        'message': 'Test endpoint working',
+        'timestamp': datetime.now().isoformat(),
+        'models': {
+            'loaded': len(classifier.models),
+            'available': list(classifier.model_paths.keys())
+        }
     })
 
 if __name__ == '__main__':
