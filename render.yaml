@@ -1,0 +1,16 @@
+services:
+  - type: web
+    namee: food-quality-classifier
+    env:python
+    plan:free
+    buildCommand:pip install -r requirements.txt
+    startCommand:gunicorn app:app
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.9.16
+      - key: FLASK_ENV
+        value: production
+      - key: MAX_CONTENT_LENGTH
+        value: 16777216
+    healthCheckPath: /health
+    autoDeploy: true

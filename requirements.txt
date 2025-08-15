@@ -1,0 +1,22 @@
+# Food Quality Classifier - Dependencies
+# Core web framework
+Flask==2.3.3
+Werkzeug==2.3.7
+
+# Machine Learning & Computer Vision
+tensorflow==2.13.0
+Pillow==10.0.0
+numpy==1.24.3
+
+# Image processing
+opencv-python==4.8.0.76
+
+# Utilities
+python-dateutil==2.8.2
+
+# Development & Testing (optional)
+pytest==7.4.0
+pytest-flask==1.2.0
+
+# Production (required for deployment)
+gunicorn==21.2.0

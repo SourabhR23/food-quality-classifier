@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Food Quality Classifier</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        .main-container {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+            margin: 2rem auto;
+            max-width: 1000px;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #28a745, #20c997);
+            color: white;
+            border-radius: 20px 20px 0 0;
+            padding: 2rem;
+            text-align: center;
+        }
+        
+        .upload-area {
+            border: 3px dashed #dee2e6;
+            border-radius: 15px;
+            padding: 3rem;
+            text-align: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .upload-area:hover {
+            border-color: #28a745;
+            background-color: #f8f9fa;
+        }
+        
+        .upload-area.dragover {
+            border-color: #28a745;
+            background-color: #e8f5e8;
+        }
+        
+        .quality-badge {
+            font-size: 1.2rem;
+            padding: 0.5rem 1rem;
+            border-radius: 25px;
+            font-weight: bold;
+        }
+        
+        .quality-good { background-color: #d4edda; color: #155724; }
+        .quality-average { background-color: #fff3cd; color: #856404; }
+        .quality-bad { background-color: #f8d7da; color: #721c24; }
+        
+        .result-card {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            padding: 1.5rem;
+            margin-top: 1rem;
+        }
+        
+        .progress-bar-custom {
+            height: 25px;
+            border-radius: 12px;
+            background-color: #e9ecef;
+        }
+        
+        .food-type-btn {
+            border-radius: 25px;
+            margin: 0.25rem;
+            transition: all 0.3s ease;
+        }
+        
+        .food-type-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+        
+        .food-type-btn.active {
+            background-color: #28a745;
+            border-color: #28a745;
+        }
+        
+        .loading {
+            display: none;
+        }
+        
+        .spinner-border-sm {
+            width: 1rem;
+            height: 1rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="main-container">
+            <!-- Header -->
+            <div class="header">
+                <h1><i class="fas fa-apple-alt me-3"></i>Food Quality Classifier</h1>
+                <p class="mb-0">AI-powered food quality assessment system</p>
+            </div>
+            
+            <!-- Main Content -->
+            <div class="p-4">
+                <!-- Food Type Selection -->
+                <div class="row mb-4">
+                    <div class="col-12">
+                        <h5><i class="fas fa-tags me-2"></i>Select Food Type</h5>
+                        <div class="d-flex flex-wrap">
+                            <button class="btn btn-outline-success food-type-btn active" data-food="tomato">
+                                <i class="fas fa-seedling me-2"></i>Tomato
+                            </button>
+                            <button class="btn btn-outline-success food-type-btn" data-food="apple">
+                                <i class="fas fa-apple-alt me-2"></i>Apple
+                            </button>
+                            <button class="btn btn-outline-success food-type-btn" data-food="mango">
+                                <i class="fas fa-lemon me-2"></i>Mango
+                            </button>
+                            <button class="btn btn-outline-success food-type-btn" data-food="potato">
+                                <i class="fas fa-carrot me-2"></i>Potato
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Image Upload -->
+                <div class="row mb-4">
+                    <div class="col-12">
+                        <h5><i class="fas fa-upload me-2"></i>Upload Food Image</h5>
+                        <div class="upload-area" id="uploadArea">
+                            <i class="fas fa-cloud-upload-alt fa-3x text-muted mb-3"></i>
+                            <h5>Drag & Drop your image here</h5>
+                            <p class="text-muted">or click to browse</p>
+                            <input type="file" id="imageInput" accept="image/*" style="display: none;">
+                            <button class="btn btn-primary" id="chooseFileBtn">
+                                <i class="fas fa-folder-open me-2"></i>Choose File
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Image Preview -->
+                <div class="row mb-4" id="imagePreview" style="display: none;">
+                    <div class="col-12">
+                        <h5><i class="fas fa-image me-2"></i>Image Preview</h5>
+                        <div class="text-center">
+                            <img id="previewImg" class="img-fluid rounded" style="max-height: 300px;">
+                        </div>
+                        <div class="text-center mt-3">
+                            <button class="btn btn-success btn-lg me-2" id="classifyBtn">
+                                <i class="fas fa-magic me-2"></i>Classify Quality
+                            </button>
+                            <button class="btn btn-outline-secondary" onclick="resetFileSelection()">
+                                <i class="fas fa-refresh me-2"></i>Choose Different Image
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Results -->
+                <div class="row" id="resultsSection" style="display: none;">
+                    <div class="col-12">
+                        <h5><i class="fas fa-chart-bar me-2"></i>Classification Results</h5>
+                        <div class="result-card">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <h6>Quality Assessment</h6>
+                                    <div class="mb-3">
+                                        <span id="qualityBadge" class="quality-badge"></span>
+                                    </div>
+                                    <p><strong>Confidence:</strong> <span id="confidenceValue"></span></p>
+                                    <p><strong>Food Type:</strong> <span id="foodTypeValue"></span></p>
+                                </div>
+                                <div class="col-md-6">
+                                    <h6>Detailed Probabilities</h6>
+                                    <div id="probabilityBars"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Loading Spinner -->
+                <div class="loading text-center" id="loadingSpinner">
+                    <div class="spinner-border text-success" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                    <p class="mt-2">Analyzing image quality...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        let selectedFoodType = 'tomato';
+        
+        // Food type selection
+        document.querySelectorAll('.food-type-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('.food-type-btn').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                selectedFoodType = this.dataset.food;
+            });
+        });
+        
+        // File input handling
+        document.getElementById('imageInput').addEventListener('change', handleFileSelect);
+        
+        // Button click handling
+        document.getElementById('chooseFileBtn').addEventListener('click', () => {
+            document.getElementById('imageInput').click();
+        });
+        
+        // Drag and drop functionality
+        const uploadArea = document.getElementById('uploadArea');
+        
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.classList.add('dragover');
+        });
+        
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.classList.remove('dragover');
+        });
+        
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.classList.remove('dragover');
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                handleFile(files[0]);
+            }
+        });
+        
+        function handleFileSelect(e) {
+            const file = e.target.files[0];
+            if (file) {
+                handleFile(file);
+            }
+        }
+        
+        // Store the selected file globally
+        let selectedFile = null;
+        
+        function handleFile(file) {
+            if (!file.type.startsWith('image/')) {
+                alert('Please select an image file.');
+                return;
+            }
+            
+            // Store the file for later use
+            selectedFile = file;
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                document.getElementById('previewImg').src = e.target.result;
+                document.getElementById('imagePreview').style.display = 'block';
+                document.getElementById('resultsSection').style.display = 'none';
+            };
+            reader.readAsDataURL(file);
+        }
+        
+        // Function to reset file selection
+        function resetFileSelection() {
+            selectedFile = null;
+            document.getElementById('imageInput').value = '';
+            document.getElementById('imagePreview').style.display = 'none';
+            document.getElementById('resultsSection').style.display = 'none';
+        }
+        
+        // Classification
+        document.getElementById('classifyBtn').addEventListener('click', classifyImage);
+        
+        function classifyImage() {
+            if (!selectedFile) {
+                alert('Please select an image first.');
+                return;
+            }
+            
+            // Show loading
+            document.getElementById('loadingSpinner').style.display = 'block';
+            document.getElementById('resultsSection').style.display = 'none';
+            
+            const formData = new FormData();
+            formData.append('image', selectedFile);
+            formData.append('food_type', selectedFoodType);
+            
+            fetch('/classify', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('loadingSpinner').style.display = 'none';
+                displayResults(data);
+            })
+            .catch(error => {
+                document.getElementById('loadingSpinner').style.display = 'none';
+                alert('Error: ' + error.message);
+            });
+        }
+        
+        function displayResults(data) {
+            if (data.error) {
+                alert('Error: ' + data.error);
+                return;
+            }
+            
+            // Display quality badge
+            const qualityBadge = document.getElementById('qualityBadge');
+            qualityBadge.textContent = data.top_prediction.toUpperCase();
+            qualityBadge.className = `quality-badge quality-${data.top_prediction}`;
+            
+            // Display confidence
+            document.getElementById('confidenceValue').textContent = data.confidence.toFixed(1) + '%';
+            document.getElementById('foodTypeValue').textContent = data.food_type.charAt(0).toUpperCase() + data.food_type.slice(1);
+            
+            // Display probability bars
+            const probabilityBars = document.getElementById('probabilityBars');
+            probabilityBars.innerHTML = '';
+            
+            Object.entries(data.predictions).forEach(([quality, probability]) => {
+                const barContainer = document.createElement('div');
+                barContainer.className = 'mb-2';
+                
+                const label = document.createElement('div');
+                label.className = 'd-flex justify-content-between';
+                label.innerHTML = `
+                    <span>${quality.charAt(0).toUpperCase() + quality.slice(1)}</span>
+                    <span>${probability.toFixed(1)}%</span>
+                `;
+                
+                const progressBar = document.createElement('div');
+                progressBar.className = 'progress progress-bar-custom';
+                progressBar.innerHTML = `
+                    <div class="progress-bar bg-${getQualityColor(quality)}" 
+                         style="width: ${probability}%"></div>
+                `;
+                
+                barContainer.appendChild(label);
+                barContainer.appendChild(progressBar);
+                probabilityBars.appendChild(barContainer);
+            });
+            
+            document.getElementById('resultsSection').style.display = 'block';
+        }
+        
+        function getQualityColor(quality) {
+            const colors = {
+                'good': 'success',
+                'average': 'warning',
+                'bad': 'danger'
+            };
+            return colors[quality] || 'secondary';
+        }
+    </script>
+</body>
+</html>
