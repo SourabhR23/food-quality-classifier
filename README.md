@@ -301,6 +301,5 @@ For questions or issues:
 
 ---
 
-**Version**: 1.0.0  
-**Last Updated**: {{ datetime.now().strftime('%Y-%m-%d') }}  
+**Version**: 1.0.0 
 **Status**: Production Ready ✅
