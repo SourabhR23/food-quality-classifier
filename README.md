@@ -38,9 +38,6 @@ Final/
 │   └── index.html       # Main interface
 ├── static/               # Static assets
 │   └── uploads/         # Uploaded images
-└── reports/              # Project documentation
-    ├── project_report.md # Comprehensive project report
-    └── model_performance_report.md # Detailed model analysis
 ```
 
 ## 🚀 Quick Start
