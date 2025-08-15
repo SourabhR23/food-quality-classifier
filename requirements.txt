@@ -4,7 +4,7 @@ Flask==2.3.3
 Werkzeug==2.3.7
 
 # Machine Learning & Computer Vision
-tensorflow==2.14.0
+tensorflow-cpu==2.14.0
 Pillow==10.0.0
 numpy==1.23.5
 
