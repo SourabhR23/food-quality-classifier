@@ -61,13 +61,22 @@ class FoodQualityClassifier:
         except Exception as e2:
             print(f"⚠️ tf.saved_model.load failed for {food_type}: {e2}")
         
-        # Strategy 3: Try loading with custom objects (for compatibility)
+        # Strategy 3: Try TFSMLayer for Keras 3 compatibility
+        try:
+            from tensorflow import keras
+            model = keras.layers.TFSMLayer(model_path, call_endpoint='serving_default')
+            print(f"✅ Loaded {food_type} using keras.layers.TFSMLayer")
+            return model
+        except Exception as e3:
+            print(f"⚠️ keras.layers.TFSMLayer failed for {food_type}: {e3}")
+        
+        # Strategy 4: Try loading with custom objects (for compatibility)
         try:
             model = keras.models.load_model(model_path, compile=False)
             print(f"✅ Loaded {food_type} using keras.models.load_model (no compile)")
             return model
-        except Exception as e3:
-            print(f"⚠️ keras.models.load_model (no compile) failed for {food_type}: {e3}")
+        except Exception as e4:
+            print(f"⚠️ keras.models.load_model (no compile) failed for {food_type}: {e4}")
         
         return None
     
@@ -159,7 +168,7 @@ class FoodQualityClassifier:
             raise Exception(f"Classification failed: {e}")
     
     def _predict_with_model(self, model, processed_image, food_type):
-        """Make prediction with model, handling both Keras models and SavedModels"""
+        """Make prediction with model, handling different model types"""
         
         # Try Keras model prediction first
         try:
@@ -169,6 +178,16 @@ class FoodQualityClassifier:
                 return prediction_values
         except Exception as e1:
             print(f"⚠️ Keras model.predict() failed for {food_type}: {e1}")
+        
+        # Try TFSMLayer call (Keras 3 SavedModel wrapper)
+        try:
+            if hasattr(model, '__call__') and 'TFSMLayer' in str(type(model)):
+                input_tensor = tf.convert_to_tensor(processed_image, dtype=tf.float32)
+                prediction_values = model(input_tensor).numpy()
+                print(f"✅ Used TFSMLayer call for {food_type}")
+                return prediction_values
+        except Exception as e2:
+            print(f"⚠️ TFSMLayer call failed for {food_type}: {e2}")
         
         # Try SavedModel signature
         try:
@@ -193,8 +212,8 @@ class FoodQualityClassifier:
             print(f"✅ Used SavedModel signature for {food_type}")
             return prediction_values
             
-        except Exception as e2:
-            print(f"⚠️ SavedModel signature failed for {food_type}: {e2}")
+        except Exception as e3:
+            print(f"⚠️ SavedModel signature failed for {food_type}: {e3}")
         
         # Try direct call (for some SavedModels)
         try:
@@ -202,8 +221,8 @@ class FoodQualityClassifier:
             prediction_values = model(input_tensor).numpy()
             print(f"✅ Used direct model call for {food_type}")
             return prediction_values
-        except Exception as e3:
-            print(f"⚠️ Direct model call failed for {food_type}: {e3}")
+        except Exception as e4:
+            print(f"⚠️ Direct model call failed for {food_type}: {e4}")
         
         raise Exception(f"All prediction strategies failed for {food_type}")
     
