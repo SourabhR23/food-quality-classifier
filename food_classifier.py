@@ -10,7 +10,7 @@ class FoodQualityClassifier:
         self.load_all_models()
     
     def load_all_models(self):
-        """Load all food quality models using tf.saved_model.load"""
+        """Load all food quality models with fallback loading strategies"""
         model_paths = {
             'tomato': 'models/tomato',
             'mango': 'models/mango', 
@@ -21,16 +21,48 @@ class FoodQualityClassifier:
         for food_type, model_path in model_paths.items():
             try:
                 if os.path.exists(model_path):
-                    # Use tf.saved_model.load for TensorFlow 2.13.0 compatibility
-                    model = tf.saved_model.load(model_path)
-                    self.models[food_type] = model
-                    print(f"✅ Loaded {food_type} model using saved_model.load")
+                    # Try multiple loading strategies for compatibility
+                    model = self._load_model_with_fallback(model_path, food_type)
+                    if model is not None:
+                        self.models[food_type] = model
+                        print(f"✅ Loaded {food_type} model successfully")
+                    else:
+                        print(f"❌ Failed to load {food_type} model with all strategies")
                 else:
                     print(f"❌ Model path not found: {model_path}")
             except Exception as e:
                 print(f"❌ Failed to load {food_type} model: {e}")
         
         print(f"🔍 Found {len(self.models)} models: {list(self.models.keys())}")
+    
+    def _load_model_with_fallback(self, model_path, food_type):
+        """Try multiple model loading strategies for compatibility"""
+        
+        # Strategy 1: Try keras.models.load_model first (most compatible)
+        try:
+            model = keras.models.load_model(model_path)
+            print(f"✅ Loaded {food_type} using keras.models.load_model")
+            return model
+        except Exception as e1:
+            print(f"⚠️ keras.models.load_model failed for {food_type}: {e1}")
+        
+        # Strategy 2: Try tf.saved_model.load
+        try:
+            model = tf.saved_model.load(model_path)
+            print(f"✅ Loaded {food_type} using tf.saved_model.load")
+            return model
+        except Exception as e2:
+            print(f"⚠️ tf.saved_model.load failed for {food_type}: {e2}")
+        
+        # Strategy 3: Try loading with custom objects (for compatibility)
+        try:
+            model = keras.models.load_model(model_path, compile=False)
+            print(f"✅ Loaded {food_type} using keras.models.load_model (no compile)")
+            return model
+        except Exception as e3:
+            print(f"⚠️ keras.models.load_model (no compile) failed for {food_type}: {e3}")
+        
+        return None
     
     def preprocess_image(self, image_path, target_size=(300, 300)):
         """Preprocess image for model input"""
@@ -67,25 +99,8 @@ class FoodQualityClassifier:
             # Get model
             model = self.models[food_type]
             
-            # Make prediction using SavedModel
-            # Convert numpy array to tensor
-            input_tensor = tf.convert_to_tensor(processed_image, dtype=tf.float32)
-            
-            # Get the default serving signature
-            infer = model.signatures['serving_default']
-            
-            # Get input key (first key in the signature)
-            input_key = list(infer.structured_input_signature[1].keys())[0]
-            
-            # Make prediction
-            prediction = infer(**{input_key: input_tensor})
-            
-            # Extract prediction values (get first output)
-            output_key = list(prediction.keys())[0]
-            prediction_values = prediction[output_key]
-            
-            # Convert to numpy array
-            prediction_values = prediction_values.numpy()
+            # Try different prediction strategies based on model type
+            prediction_values = self._predict_with_model(model, processed_image, food_type)
             
             # Model outputs 3 classes: [Bad/Poor, Average, Good]
             class_names = ["Poor", "Average", "Good"]
@@ -119,6 +134,55 @@ class FoodQualityClassifier:
         except Exception as e:
             raise Exception(f"Classification failed: {e}")
     
+    def _predict_with_model(self, model, processed_image, food_type):
+        """Make prediction with model, handling both Keras models and SavedModels"""
+        
+        # Try Keras model prediction first
+        try:
+            if hasattr(model, 'predict'):
+                prediction_values = model.predict(processed_image, verbose=0)
+                print(f"✅ Used Keras model.predict() for {food_type}")
+                return prediction_values
+        except Exception as e1:
+            print(f"⚠️ Keras model.predict() failed for {food_type}: {e1}")
+        
+        # Try SavedModel signature
+        try:
+            # Convert numpy array to tensor
+            input_tensor = tf.convert_to_tensor(processed_image, dtype=tf.float32)
+            
+            # Get the default serving signature
+            infer = model.signatures['serving_default']
+            
+            # Get input key (first key in the signature)
+            input_key = list(infer.structured_input_signature[1].keys())[0]
+            
+            # Make prediction
+            prediction = infer(**{input_key: input_tensor})
+            
+            # Extract prediction values (get first output)
+            output_key = list(prediction.keys())[0]
+            prediction_values = prediction[output_key]
+            
+            # Convert to numpy array
+            prediction_values = prediction_values.numpy()
+            print(f"✅ Used SavedModel signature for {food_type}")
+            return prediction_values
+            
+        except Exception as e2:
+            print(f"⚠️ SavedModel signature failed for {food_type}: {e2}")
+        
+        # Try direct call (for some SavedModels)
+        try:
+            input_tensor = tf.convert_to_tensor(processed_image, dtype=tf.float32)
+            prediction_values = model(input_tensor).numpy()
+            print(f"✅ Used direct model call for {food_type}")
+            return prediction_values
+        except Exception as e3:
+            print(f"⚠️ Direct model call failed for {food_type}: {e3}")
+        
+        raise Exception(f"All prediction strategies failed for {food_type}")
+    
     def get_models_info(self):
         """Get information about loaded models"""
         models_info = {}
@@ -144,9 +208,12 @@ class FoodQualityClassifier:
         try:
             model_path = f'models/{food_type}'
             if os.path.exists(model_path):
-                model = tf.saved_model.load(model_path)
-                self.models[food_type] = model
-                return {'status': 'success', 'message': f'{food_type} model reloaded'}
+                model = self._load_model_with_fallback(model_path, food_type)
+                if model is not None:
+                    self.models[food_type] = model
+                    return {'status': 'success', 'message': f'{food_type} model reloaded'}
+                else:
+                    return {'status': 'error', 'message': f'Failed to reload {food_type} model with all strategies'}
             else:
                 return {'status': 'error', 'message': f'Model path not found: {model_path}'}
         except Exception as e:
