@@ -38,9 +38,6 @@ Final/
 │   └── index.html       # Main interface
 ├── static/               # Static assets
 │   └── uploads/         # Uploaded images
-└── reports/              # Project documentation
-    ├── project_report.md # Comprehensive project report
-    └── model_performance_report.md # Detailed model analysis
 ```
 
 ## 🚀 Quick Start
@@ -55,7 +52,7 @@ Final/
 
 1. **Clone or download the project**
    ```bash
-   cd Final
+   cd Food_Quality_Classifier
    ```
 
 2. **Create a virtual environment (recommended)**
@@ -304,6 +301,5 @@ For questions or issues:
 
 ---
 
-**Version**: 1.0.0  
-**Last Updated**: {{ datetime.now().strftime('%Y-%m-%d') }}  
+**Version**: 1.0.0 
 **Status**: Production Ready ✅
