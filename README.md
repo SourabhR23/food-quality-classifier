@@ -1,69 +1,46 @@
 # 🍎 Food Quality Classifier
 
-An AI-powered web application for automatically assessing food quality using computer vision and deep learning. The system can classify four different food types (tomato, apple, mango, and potato) into three quality categories: good, average, and bad.
+An AI-powered web application for classifying food quality using deep learning models. Built with TensorFlow, Flask, and modern web technologies.
 
 ## ✨ Features
 
-- **Multi-Food Classification**: Support for tomato, apple, mango, and potato
-- **Quality Assessment**: Three quality levels (good, average, bad)
-- **Modern Web Interface**: Responsive design with drag & drop upload
-- **Real-time Processing**: Instant quality classification results
-- **High Accuracy**: Average 88.75% accuracy across all models
-- **Production Ready**: Clean, scalable architecture
+- **Multi-Food Classification**: Support for Tomato, Apple, Mango, and Potato
+- **AI-Powered Analysis**: Deep learning models for quality assessment
+- **Modern UI**: Glassmorphism design with neumorphic elements
+- **Real-time Results**: Instant quality classification with confidence scores
+- **Responsive Design**: Works seamlessly on desktop and mobile devices
+- **Drag & Drop**: Easy image upload with drag and drop support
 
-## 🏗️ Architecture
+## 🚀 Live Demo
 
-```
-┌─────────────────┐    ┌──────────────────┐    ┌─────────────────┐
-│   Web Interface │    │   Flask Backend  │    │  ML Models      │
-│   (HTML/CSS/JS) │◄──►│   (Python)       │◄──►│  (TensorFlow)   │
-└─────────────────┘    └──────────────────┘    └─────────────────┘
-```
+Visit the application: [Food Quality Classifier](https://your-app-url.com)
 
-## 📁 Project Structure
+## 🛠️ Technology Stack
 
-```
-Final/
-├── app.py                 # Main Flask application
-├── food_classifier.py     # Core ML classification logic
-├── utils.py              # Utility functions
-├── requirements.txt      # Python dependencies
-├── README.md            # This file
-├── models/               # Trained ML models
-│   ├── tomato/          # Tomato quality model
-│   ├── apple/           # Apple quality model
-│   ├── mango/           # Mango quality model
-│   └── potato/          # Potato quality model
-├── templates/            # HTML templates
-│   └── index.html       # Main interface
-├── static/               # Static assets
-│   └── uploads/         # Uploaded images
-```
+- **Backend**: Python, Flask, TensorFlow 2.13.0
+- **Frontend**: HTML5, CSS3, JavaScript, Bootstrap 5
+- **AI Models**: EfficientNet-Lite4 architecture
+- **Deployment**: Ready for Heroku, Render, or any cloud platform
 
-## 🚀 Quick Start
+## 📋 Prerequisites
 
-### Prerequisites
+- Python 3.8+
+- TensorFlow 2.13.0
+- Flask 2.3.3
+- Modern web browser
 
-- Python 3.8 or higher
-- pip package manager
-- 4GB+ RAM (for model loading)
+## 🚀 Installation
 
-### Installation
-
-1. **Clone or download the project**
+1. **Clone the repository**
    ```bash
-   cd Food_Quality_Classifier
+   git clone https://github.com/SourabhR23/food-quality-classifier.git
+   cd food-quality-classifier
    ```
 
-2. **Create a virtual environment (recommended)**
+2. **Create virtual environment**
    ```bash
-   python -m venv venv
-   
-   # On Windows
-   venv\Scripts\activate
-   
-   # On macOS/Linux
-   source venv/bin/activate
+   python -m venv food_quality
+   source food_quality/bin/activate  # On Windows: food_quality\Scripts\activate
    ```
 
 3. **Install dependencies**
@@ -71,235 +48,134 @@ Final/
    pip install -r requirements.txt
    ```
 
-
-
 4. **Run the application**
    ```bash
    python app.py
    ```
 
-5. **Open your browser**
-   Navigate to: http://localhost:5000
+5. **Open in browser**
+   Navigate to `http://localhost:5000`
 
-## 🎯 Usage Guide
+## 🎯 Usage
 
-### Basic Workflow
+1. **Select Food Type**: Choose from Tomato, Apple, Mango, or Potato
+2. **Upload Image**: Drag & drop or click to browse for food images
+3. **Get Results**: View quality classification (Poor, Average, Good) with confidence scores
+4. **Detailed Analysis**: See probability breakdown for each quality level
 
-1. **Select Food Type**: Choose from tomato, apple, mango, or potato
-2. **Upload Image**: Drag & drop or click to browse for an image
-3. **Classify**: Click "Classify Quality" button
-4. **View Results**: See quality assessment and confidence scores
+## 🏗️ Project Structure
 
-### Supported Image Formats
-
-- **Formats**: JPG, PNG, JPEG, GIF
-- **Size Limit**: Maximum 16MB
-- **Dimensions**: Minimum 100x100 pixels
-
-### Quality Categories
-
-| Quality | Description | Color Code |
-|---------|-------------|------------|
-| **Good** | High quality, fresh produce | 🟢 Green |
-| **Average** | Acceptable quality, minor defects | 🟡 Yellow |
-| **Bad** | Poor quality, spoiled/damaged | 🔴 Red |
-
-## 📊 Model Performance
-
-| Model | Accuracy | Status | Best Use Case |
-|-------|----------|--------|---------------|
-| 🍅 Tomato | 92% | ✅ Excellent | Fresh produce QC |
-| 🍎 Apple | 88% | ✅ Good | Storage monitoring |
-| 🥔 Potato | 90% | ✅ Good | Processing plants |
-| 🥭 Mango | 85% | ⚠️ Acceptable | Basic screening |
-
-**Overall System Accuracy**: 88.75%
+```
+food-quality-classifier/
+├── app.py                 # Main Flask application
+├── food_classifier.py     # AI model loading and classification logic
+├── requirements.txt       # Python dependencies
+├── templates/
+│   └── index.html        # Main web interface
+├── static/               # Static assets
+├── models/               # Trained AI models
+│   ├── tomato/          # Tomato quality model
+│   ├── apple/           # Apple quality model
+│   ├── mango/           # Mango quality model
+│   └── potato/          # Potato quality model
+└── README.md            # This file
+```
 
 ## 🔧 Configuration
 
 ### Environment Variables
-
-The application uses default configurations, but you can customize:
-
-```bash
-# Flask configuration
-export FLASK_ENV=development
-export FLASK_DEBUG=1
-
-# Upload settings
-export MAX_CONTENT_LENGTH=16777216  # 16MB in bytes
-```
+- `PORT`: Server port (default: 5000)
+- `DEBUG`: Debug mode (default: False)
 
 ### Model Configuration
+- **Input Size**: 300x300 pixels
+- **Format**: RGB images
+- **Quality Classes**: Poor, Average, Good
+- **Model Architecture**: EfficientNet-Lite4
 
-Models are automatically loaded from the `models/` directory. Each model should contain:
-- `saved_model.pb` - TensorFlow SavedModel
-- `variables/` - Model variables directory
-- `keras_metadata.pb` - Model metadata
+## 📊 API Endpoints
 
-## 🧪 Testing
+- `GET /` - Main web interface
+- `POST /classify` - Image classification endpoint
+- `GET /models` - Model information
+- `GET /health` - Health check
+- `GET /performance` - Performance metrics
 
-### Manual Testing
+## 🎨 UI Features
 
-1. **Health Check**: Visit `/health` endpoint
-2. **Model Info**: Visit `/models` endpoint
-3. **Performance**: Visit `/performance` endpoint
+- **Glassmorphism Cards**: Modern transparent glass effects
+- **Neumorphic Buttons**: 3D button designs with shadows
+- **Floating Action Buttons**: Quick access to help and settings
+- **Skeleton Loading**: Animated loading screens
+- **Food-themed Animations**: Custom loading animations
+- **Responsive Grid Layout**: Single-page design without scrolling
 
-### Sample Images
+## 🔍 Model Performance
 
-Test the system with various food images:
-- Different lighting conditions
-- Various angles and orientations
-- Mixed quality levels
-- Different food varieties
+- **Accuracy**: High accuracy across all food types
+- **Speed**: Fast inference with TensorFlow optimization
+- **Memory**: Efficient memory usage with lazy loading
+- **Compatibility**: Works with TensorFlow 2.13.0+
 
 ## 🚀 Deployment
 
-### Development
-
+### Heroku
 ```bash
-python app.py
+heroku create your-app-name
+git push heroku master
 ```
 
-### Production
+### Render
+- Connect your GitHub repository
+- Set build command: `pip install -r requirements.txt`
+- Set start command: `gunicorn app:app`
 
+### Docker
 ```bash
-# Install production dependencies
-pip install gunicorn
-
-# Run with Gunicorn
-gunicorn -w 4 -b 0.0.0.0:5000 app:app
+docker build -t food-quality-classifier .
+docker run -p 5000:5000 food-quality-classifier
 ```
-
-### Docker (Optional)
-
-```dockerfile
-FROM python:3.9-slim
-WORKDIR /app
-COPY requirements.txt .
-RUN pip install -r requirements.txt
-COPY . .
-EXPOSE 5000
-CMD ["gunicorn", "-w", "4", "-b", "0.0.0.0:5000", "app:app"]
-```
-
-## 🔍 API Endpoints
-
-| Endpoint | Method | Description | Response |
-|----------|--------|-------------|----------|
-| `/` | GET | Main interface | HTML page |
-| `/classify` | POST | Image classification | JSON results |
-| `/models` | GET | Model information | JSON metadata |
-| `/performance` | GET | Performance metrics | JSON data |
-| `/health` | GET | Health check | JSON status |
-
-### Example API Usage
-
-```bash
-# Classify an image
-curl -X POST -F "image=@food.jpg" -F "food_type=tomato" http://localhost:5000/classify
-
-# Get model information
-curl http://localhost:5000/models
-
-# Check system health
-curl http://localhost:5000/health
-```
-
-## 🛠️ Troubleshooting
-
-### Common Issues
-
-#### 1. **Models Not Loading**
-```
-Error: Model directory not found
-```
-**Solution**: Ensure models are in the `models/` directory with proper structure
-
-#### 2. **Memory Issues**
-```
-Error: Out of memory
-```
-**Solution**: Close other applications, ensure 4GB+ RAM available
-
-#### 3. **Image Upload Failures**
-```
-Error: Invalid file type
-```
-**Solution**: Use supported formats (JPG, PNG, JPEG, GIF)
-
-#### 4. **Classification Errors**
-```
-Error: Model not found for food type
-```
-**Solution**: Select a supported food type (tomato, apple, mango, potato)
-
-### Performance Optimization
-
-- **Model Caching**: Models are loaded once and cached
-- **Image Optimization**: Efficient preprocessing pipeline
-- **Memory Management**: Automatic cleanup of uploaded files
-
-## 📈 Monitoring & Maintenance
-
-### Performance Metrics
-
-- **Response Time**: Monitor classification speed
-- **Accuracy**: Track model performance over time
-- **Error Rates**: Monitor classification failures
-- **Resource Usage**: Track memory and CPU usage
-
-### Regular Maintenance
-
-- **Model Updates**: Retrain models with new data
-- **Performance Review**: Monthly accuracy assessment
-- **System Updates**: Keep dependencies current
-- **Backup**: Regular model and configuration backups
 
 ## 🤝 Contributing
 
-### Development Setup
-
 1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Add tests if applicable
-5. Submit a pull request
+2. Create a feature branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
 
-### Code Style
+## 📝 License
 
-- **Python**: Follow PEP 8 guidelines
-- **HTML/CSS**: Use consistent indentation
-- **JavaScript**: Follow ES6+ standards
-- **Documentation**: Add docstrings and comments
-
-## 📚 Documentation
-
-- **Project Report**: `reports/project_report.md`
-- **Model Performance**: `reports/model_performance_report.md`
-- **API Reference**: See API Endpoints section above
-
-## 📄 License
-
-This project is provided as-is for educational and research purposes.
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 ## 🙏 Acknowledgments
 
-- **TensorFlow**: Machine learning framework
-- **Flask**: Web application framework
-- **Bootstrap**: Frontend UI components
-- **Pillow**: Image processing library
+- TensorFlow team for the deep learning framework
+- EfficientNet-Lite4 model architecture
+- Flask community for the web framework
+- Bootstrap team for the UI components
 
 ## 📞 Support
 
-For questions or issues:
+If you have any questions or need help:
+- Open an issue on GitHub
+- Contact: [Your Email]
+- Project: [GitHub Repository](https://github.com/SourabhR23/food-quality-classifier)
 
-1. Check the troubleshooting section above
-2. Review the project reports
-3. Check the API documentation
-4. Create an issue in the repository
+## 🔄 Changelog
+
+### Version 2.0.0
+- ✨ New modern UI with glassmorphism and neumorphic design
+- 🎨 Updated color scheme with warm food-themed palette
+- 📱 Single-page layout for better user experience
+- 🔧 Fixed TensorFlow compatibility issues
+- 🚀 Enhanced loading animations and state management
+
+### Version 1.0.0
+- 🎯 Initial release with basic functionality
+- 🤖 AI-powered food quality classification
+- 🌐 Web interface for easy interaction
 
 ---
 
-**Version**: 1.0.0 
-**Status**: Production Ready ✅
+⭐ **Star this repository if you find it helpful!**
