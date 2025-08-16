@@ -1,3 +1,9 @@
+# Virtual Environment
+food_quality/
+venv/
+env/
+.venv/
+
 # Python
 __pycache__/
 *.py[cod]
@@ -21,12 +27,14 @@ wheels/
 *.egg
 MANIFEST
 
-# Virtual environments
-venv/
-env/
-ENV/
-env.bak/
-venv.bak/
+# Model files (large binary files)
+models/*/fingerprint.pb
+models/*/variables/
+models/*/saved_model.pb
+models/*/keras_metadata.pb
+
+# Keep only essential model files
+!models/labels.txt
 
 # IDE
 .vscode/
@@ -37,19 +45,70 @@ venv.bak/
 
 # OS
 .DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
 Thumbs.db
 
 # Logs
 *.log
+logs/
 
 # Environment variables
 .env
 .env.local
+.env.development.local
+.env.test.local
+.env.production.local
 
-# Uploaded files (don't deploy these)
-static/uploads/*
-!static/uploads/.gitkeep
+# Flask
+instance/
+.webassets-cache
 
-# Temporary files
-*.tmp
-*.temp
+# Coverage reports
+htmlcov/
+.tox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+.hypothesis/
+.pytest_cache/
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# pyenv
+.python-version
+
+# pipenv
+Pipfile.lock
+
+# PEP 582
+__pypackages__/
+
+# Celery
+celerybeat-schedule
+celerybeat.pid
+
+# SageMath parsed files
+*.sage.py
+
+# Spyder project settings
+.spyderproject
+.spyproject
+
+# Rope project settings
+.ropeproject
+
+# mkdocs documentation
+/site
+
+# mypy
+.mypy_cache/
+.dmypy.json
+dmypy.json
