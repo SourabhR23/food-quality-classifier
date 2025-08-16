@@ -55,14 +55,14 @@ class FoodQualityClassifier:
     def _load_model_with_fallback(self, model_path, food_type):
         """Try multiple model loading strategies for compatibility"""
         
-        # Strategy 1: Try TFSMLayer for Keras 3 compatibility first (most memory efficient)
+        # Strategy 1: Try keras.models.load_model first (most compatible with Keras 2.x models)
         try:
-            with tf.device('/CPU:0'):  # Force CPU usage to save memory
-                model = keras.layers.TFSMLayer(model_path, call_endpoint='serving_default')
-                print(f"✅ Loaded {food_type} using keras.layers.TFSMLayer")
+            with tf.device('/CPU:0'):
+                model = keras.models.load_model(model_path, compile=False)
+                print(f"✅ Loaded {food_type} using keras.models.load_model (no compile)")
                 return model
         except Exception as e1:
-            print(f"⚠️ keras.layers.TFSMLayer failed for {food_type}: {e1}")
+            print(f"⚠️ keras.models.load_model failed for {food_type}: {e1}")
         
         # Strategy 2: Try tf.saved_model.load with memory optimization
         try:
@@ -73,14 +73,14 @@ class FoodQualityClassifier:
         except Exception as e2:
             print(f"⚠️ tf.saved_model.load failed for {food_type}: {e2}")
         
-        # Strategy 3: Try keras.models.load_model
+        # Strategy 3: Try TFSMLayer for Keras 3 compatibility (least compatible with Keras 2.x)
         try:
-            with tf.device('/CPU:0'):
-                model = keras.models.load_model(model_path, compile=False)
-                print(f"✅ Loaded {food_type} using keras.models.load_model (no compile)")
+            with tf.device('/CPU:0'):  # Force CPU usage to save memory
+                model = keras.layers.TFSMLayer(model_path, call_endpoint='serving_default')
+                print(f"✅ Loaded {food_type} using keras.layers.TFSMLayer")
                 return model
         except Exception as e3:
-            print(f"⚠️ keras.models.load_model failed for {food_type}: {e3}")
+            print(f"⚠️ keras.layers.TFSMLayer failed for {food_type}: {e3}")
         
         # Strategy 4: Create a dummy classifier if all else fails
         print(f"⚠️ All model loading strategies failed for {food_type}, using dummy classifier")
