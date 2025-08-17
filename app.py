@@ -120,9 +120,10 @@ def health_check():
         'timestamp': datetime.now().isoformat(),
         'models_loaded': len(classifier.models),
         'available_models': list(classifier.model_paths.keys()),
-        'python_version': '3.13.4',
-        'tensorflow_version': '2.20.0',
-        'memory_optimization': 'lazy_loading_enabled'
+        'python_version': '3.10.10',
+        'tensorflow_version': '2.13.0',
+        'memory_optimization': 'lazy_loading_enabled',
+        'deployment': 'fly.io'
     })
 
 @app.route('/test')

@@ -119,6 +119,57 @@ food-quality-classifier/
 
 ## 🚀 Deployment
 
+### Fly.io (Recommended)
+
+Fly.io is a modern platform that's perfect for machine learning applications:
+
+1. **Install Fly CLI**
+   ```bash
+   # Windows
+   winget install flyctl
+   
+   # macOS
+   brew install flyctl
+   
+   # Linux
+   curl -L https://fly.io/install.sh | sh
+   ```
+
+2. **Login to Fly.io**
+   ```bash
+   flyctl auth login
+   ```
+
+3. **Deploy (Windows)**
+   ```bash
+   # Run the batch file
+   deploy-fly.bat
+   
+   # Or manually:
+   flyctl apps create food-quality-classifier --org personal
+   flyctl volumes create food_quality_data --size 1 --region iad
+   flyctl deploy
+   ```
+
+4. **Deploy (Linux/macOS)**
+   ```bash
+   # Run the shell script
+   chmod +x deploy-fly.sh
+   ./deploy-fly.sh
+   
+   # Or manually:
+   flyctl apps create food-quality-classifier --org personal
+   flyctl volumes create food_quality_data --size 1 --region iad
+   flyctl deploy
+   ```
+
+**Fly.io Benefits:**
+- 🚀 **Global Edge Network** - Deploy close to your users
+- 💰 **Pay-per-use** - Only pay when your app is running
+- 🔒 **Built-in HTTPS** - Automatic SSL certificates
+- 📊 **Real-time Monitoring** - Built-in metrics and logging
+- 🐳 **Docker Native** - Optimized for containerized apps
+
 ### Heroku
 ```bash
 heroku create your-app-name

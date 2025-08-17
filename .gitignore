@@ -112,3 +112,12 @@ celerybeat.pid
 .mypy_cache/
 .dmypy.json
 dmypy.json
+
+# Fly.io
+fly.toml
+.fly/
+
+# Docker
+.dockerignore
+Dockerfile
+docker-compose.yml
