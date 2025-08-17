@@ -13,7 +13,7 @@ An AI-powered web application for classifying food quality using deep learning m
 
 ## 🚀 Live Demo
 
-Visit the application: [Food Quality Classifier](https://your-app-url.com)
+Visit the application: [Food Quality Classifier](https://food-quality-ai.fly.dev)
 
 ## 🛠️ Technology Stack
 
@@ -117,83 +117,6 @@ food-quality-classifier/
 - **Memory**: Efficient memory usage with lazy loading
 - **Compatibility**: Works with TensorFlow 2.13.0+
 
-## 🚀 Deployment
-
-### Fly.io (Recommended)
-
-Fly.io is a modern platform that's perfect for machine learning applications:
-
-1. **Install Fly CLI**
-   ```bash
-   # Windows
-   winget install flyctl
-   
-   # macOS
-   brew install flyctl
-   
-   # Linux
-   curl -L https://fly.io/install.sh | sh
-   ```
-
-2. **Login to Fly.io**
-   ```bash
-   flyctl auth login
-   ```
-
-3. **Deploy (Windows)**
-   ```bash
-   # Run the batch file
-   deploy-fly.bat
-   
-   # Or manually:
-   flyctl apps create food-quality-classifier --org personal
-   flyctl volumes create food_quality_data --size 1 --region iad
-   flyctl deploy
-   ```
-
-4. **Deploy (Linux/macOS)**
-   ```bash
-   # Run the shell script
-   chmod +x deploy-fly.sh
-   ./deploy-fly.sh
-   
-   # Or manually:
-   flyctl apps create food-quality-classifier --org personal
-   flyctl volumes create food_quality_data --size 1 --region iad
-   flyctl deploy
-   ```
-
-**Fly.io Benefits:**
-- 🚀 **Global Edge Network** - Deploy close to your users
-- 💰 **Pay-per-use** - Only pay when your app is running
-- 🔒 **Built-in HTTPS** - Automatic SSL certificates
-- 📊 **Real-time Monitoring** - Built-in metrics and logging
-- 🐳 **Docker Native** - Optimized for containerized apps
-
-### Heroku
-```bash
-heroku create your-app-name
-git push heroku master
-```
-
-### Render
-- Connect your GitHub repository
-- Set build command: `pip install -r requirements.txt`
-- Set start command: `gunicorn app:app`
-
-### Docker
-```bash
-docker build -t food-quality-classifier .
-docker run -p 5000:5000 food-quality-classifier
-```
-
-## 🤝 Contributing
-
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
 
 ## 📝 License
 
