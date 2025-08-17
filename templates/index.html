@@ -744,6 +744,15 @@
             document.getElementById('imagePreview').style.display = 'none';
             document.getElementById('resultsSection').style.display = 'none';
             document.getElementById('resultsPlaceholder').style.display = 'block';
+            
+            // Also reset all loading states
+            resetLoadingStates();
+        }
+        
+        // Function to reset all loading states
+        function resetLoadingStates() {
+            document.getElementById('skeletonLoader').style.display = 'none';
+            document.getElementById('foodLoading').style.display = 'none';
         }
         
         // Classification
@@ -761,12 +770,26 @@
             
             // Show skeleton loading first
             document.getElementById('skeletonLoader').style.display = 'block';
+            document.getElementById('foodLoading').style.display = 'none';
             
-            // Then show food-themed loading
-            setTimeout(() => {
+            // Store timeout reference to cancel if needed
+            let loadingTimeout;
+            
+            // Then show food-themed loading after delay
+            loadingTimeout = setTimeout(() => {
                 document.getElementById('skeletonLoader').style.display = 'none';
                 document.getElementById('foodLoading').style.display = 'block';
             }, 1500);
+            
+            // Safety timeout - hide loading states after 30 seconds maximum
+            const safetyTimeout = setTimeout(() => {
+                if (loadingTimeout) {
+                    clearTimeout(loadingTimeout);
+                }
+                resetLoadingStates();
+                document.getElementById('resultsPlaceholder').style.display = 'block';
+                alert('Classification is taking longer than expected. Please try again.');
+            }, 30000);
             
             const formData = new FormData();
             formData.append('image', selectedFile);
@@ -778,14 +801,26 @@
             })
             .then(response => response.json())
             .then(data => {
-                // Hide all loading states
+                // Clear all timeouts
+                clearTimeout(safetyTimeout);
+                if (loadingTimeout) {
+                    clearTimeout(loadingTimeout);
+                }
+                
+                // Hide all loading states immediately
                 document.getElementById('foodLoading').style.display = 'none';
                 document.getElementById('skeletonLoader').style.display = 'none';
                 
                 displayResults(data);
             })
             .catch(error => {
-                // Hide all loading states on error
+                // Clear all timeouts
+                clearTimeout(safetyTimeout);
+                if (loadingTimeout) {
+                    clearTimeout(loadingTimeout);
+                }
+                
+                // Hide all loading states on error immediately
                 document.getElementById('foodLoading').style.display = 'none';
                 document.getElementById('skeletonLoader').style.display = 'none';
                 document.getElementById('resultsPlaceholder').style.display = 'block';
@@ -886,6 +921,9 @@
         
         // Add some interactive animations
         document.addEventListener('DOMContentLoaded', function() {
+            // Reset all loading states on page load
+            resetLoadingStates();
+            
             // Animate cards on scroll
             const observerOptions = {
                 threshold: 0.1,
