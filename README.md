@@ -15,6 +15,9 @@ An AI-powered web application for classifying food quality using deep learning m
 
 Visit the application: [Food Quality Classifier](https://food-quality-ai.fly.dev)
 
+### 📹 Demo Video
+![Demo Video](Food%20Quality%20Classifier.mp4)
+
 ## 🛠️ Technology Stack
 
 - **Backend**: Python, Flask, TensorFlow 2.13.0
